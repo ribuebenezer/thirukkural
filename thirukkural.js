@@ -14,11 +14,102 @@ document.addEventListener('DOMContentLoaded', function () {
         "கொன்றன்ன இன்னா செயினும் அவர்செய்த$ஒன்றுநன்று உள்ளக் கெடும்"
     ];
 
-    var selectedKural = selectRandomKural(kurals).split('$').join(' ').split(' ');
-    var shuffledKural = shuffleArray(selectedKural.slice());
-    var selectedWords = [];
-    var wordBlocks = {};
+        var wordChoices = document.getElementById('wordChoices');
+    var kuralWords1 = document.getElementById('kuralWords1');
+    var kuralWords2 = document.getElementById('kuralWords2');
+    var submitBtn = document.getElementById('submitBtn');
+    var restartBtn = document.getElementById('restartBtn');
+    var result = document.getElementById('result');
+    var selectedKural, shuffledKural, selectedWords, wordBlocks;
 
+    startGame();
+
+    submitBtn.onclick = function () {
+        var score = 0;
+        selectedWords.forEach(function (word, index) {
+            if (word === selectedKural[index]) score++;
+        });
+        result.textContent = `Score: ${score}/${selectedKural.length}. Correct Kural: ${selectedKural.join(' ')}`;
+        restartBtn.style.display = 'block';
+    };
+
+    restartBtn.onclick = startGame;
+
+    function startGame() {
+        selectedKural = selectRandomKural(kurals).split('$').join(' ').split(' ');
+        shuffledKural = shuffleArray(selectedKural.slice());
+        selectedWords = [];
+        wordBlocks = {};
+        wordChoices.innerHTML = '';
+        kuralWords1.textContent = '';
+        kuralWords2.textContent = '';
+        result.textContent = '';
+        restartBtn.style.display = 'none';
+
+        shuffledKural.forEach(function (word) {
+            var wordBlock = createWordBlock(word);
+            wordChoices.appendChild(wordBlock);
+            wordBlocks[word] = wordBlock;
+        });
+    }
+
+    function createWordBlock(word) {
+        var wordBlock = document.createElement('div');
+        wordBlock.className = 'wordBlock';
+        wordBlock.textContent = word;
+        wordBlock.onclick = function () {
+            selectWord(word, wordBlock);
+        };
+        return wordBlock;
+    }
+
+    function selectWord(word, wordBlock) {
+        if (!selectedWords.includes(word)) {
+            selectedWords.push(word);
+            updateKuralDisplay();
+            wordBlock.style.display = 'none';
+        }
+    }
+
+    function updateKuralDisplay() {
+        kuralWords1.textContent = '';
+        kuralWords2.textContent = '';
+        selectedWords.forEach(function(word, index) {
+            var wordSpan = document.createElement('span');
+            wordSpan.className = 'wordSpan';
+            wordSpan.textContent = word;
+            wordSpan.onclick = function() {
+                deselectWord(word, index);
+            };
+            if (index < 4) {
+                kuralWords1.appendChild(wordSpan);
+            } else {
+                kuralWords2.appendChild(wordSpan);
+            }
+        });
+    }
+
+    function deselectWord(word, index) {
+        selectedWords.splice(index, 1);
+        updateKuralDisplay();
+        wordBlocks[word].style.display = 'block';
+    }
+
+    function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
+    }
+
+    function selectRandomKural(kurals) {
+        var randomIndex = Math.floor(Math.random() * kurals.length);
+        return kurals[randomIndex];
+    }
+});
     var wordChoices = document.getElementById('wordChoices');
     var kuralWords1 = document.getElementById('kuralWords1');
     var kuralWords2 = document.getElementById('kuralWords2');
